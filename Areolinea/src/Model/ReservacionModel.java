@@ -2,36 +2,37 @@ package Model;
 
 import Database.CRUD;
 import Database.ConfigDB;
-import entity.Pasajero;
+import entity.Reservación;
 
 import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PasajeroModel implements CRUD {
+public class ReservacionModel implements CRUD {
 
-    @Override
     public Object insert(Object obj) {
         Connection objConnection =  ConfigDB.openConnection();
 
-        Pasajero objPasajero = (Pasajero) obj;
+        Reservación objReservacion = (Reservación) obj;
         try {
-            String sql = "INSERT INTO pasajero (nombre,apellido,documento_identidad) VALUES(?,?,?);";
+            String sql = "INSERT INTO reservacion (id_pasajero_fk,id_vuelo_fk,fecha_reservacion,asiento) VALUES(?,?,?,?);";
             PreparedStatement objPrepare = objConnection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            objPrepare.setString(1, objPasajero.getNombre());
-            objPrepare.setString(2, objPasajero.getApellido());
-            objPrepare.setString(3, objPasajero.getDocumento_identidad());
+
+            objPrepare.setInt(1, objReservacion.getId_pasajero());
+            objPrepare.setInt(2, objReservacion.getId_vuelo());
+            objPrepare.setString(3, objReservacion.getFecha_reservacion());
+            objPrepare.setString(4, objReservacion.getAsiento());
 
             objPrepare.execute();
 
             ResultSet objResult = objPrepare.getGeneratedKeys();
 
             while (objResult.next()){
-                objPasajero.setId_pasajero(objResult.getInt(1));
+                objReservacion.setId_reservacion(objResult.getInt(1));
             }
-            JOptionPane.showMessageDialog(null,"Pasajero añadido correctamente");
+            JOptionPane.showMessageDialog(null,"Reservacion añadida correctamente");
 
 
         } catch (SQLException e) {
@@ -41,27 +42,28 @@ public class PasajeroModel implements CRUD {
         }
 
         ConfigDB.closeConnection();
-        return objPasajero;
+        return objReservacion;
     }
 
     @Override
     public List<Object> findAll() {
         Connection objConnection  = ConfigDB.openConnection();
-        List<Object> listPasajeros = new ArrayList<>();
+        List<Object> listReservaciones = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM pasajero ;";
+            String sql = "SELECT * FROM reservacion ;";
             PreparedStatement objPrepare = objConnection.prepareStatement(sql);
             ResultSet objResult = objPrepare.executeQuery();
 
             while (objResult.next()){
-                Pasajero objPasajero = new Pasajero();
+                Reservación objReservacion = new Reservación();
 
-                objPasajero.setId_pasajero(objResult.getInt("id_pasajero"));
-                objPasajero.setNombre(objResult.getString("nombre"));
-                objPasajero.setApellido(objResult.getString("apellido"));
-                objPasajero.setDocumento_identidad(objResult.getString("documento_identidad"));
+                objReservacion.setId_reservacion(objResult.getInt("id_reservacion"));
+                objReservacion.setId_pasajero(objResult.getInt("id_pasajero_fk"));
+                objReservacion.setId_vuelo(objResult.getInt("id_vuelo_fk"));
+                objReservacion.setFecha_reservacion(objResult.getString("fecha_reservacion"));
+                objReservacion.setAsiento(objResult.getString("asiento"));
 
-                listPasajeros.add(objPasajero);
+                listReservaciones.add(objReservacion);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -69,22 +71,25 @@ public class PasajeroModel implements CRUD {
             System.out.println(e.getMessage());
         }
         ConfigDB.closeConnection();
-        return listPasajeros;
+        return listReservaciones;
     }
 
     @Override
     public Boolean update(Object obj) {
         Connection objConnection = ConfigDB.openConnection();
-        Pasajero objPasajero = (Pasajero) obj;
+        Reservación objReservacion = (Reservación) obj;
+
         boolean isUpdate = false;
         try {
-            String sql = "UPDATE pasajero SET nombre= ?, apellido=?, documento_identidad=?  WHERE id_pasajero =?; ";
+            String sql = "UPDATE reservacion SET id_pasajero_fk= ?,id_vuelo_fk=?,fecha_reservacion=?,asiento= ?  WHERE id_reservacion =?; ";
             PreparedStatement objPrepare = objConnection.prepareStatement(sql);
 
-            objPrepare.setString(1,objPasajero.getNombre());
-            objPrepare.setString(2,objPasajero.getApellido());
-            objPrepare.setString(3,objPasajero.getDocumento_identidad());
-            objPrepare.setInt(4,objPasajero.getId_pasajero());
+            objPrepare.setInt(1,objReservacion.getId_pasajero());
+            objPrepare.setInt(2,objReservacion.getId_vuelo());
+            objPrepare.setString(3,objReservacion.getFecha_reservacion());
+            objPrepare.setString(4,objReservacion.getAsiento());
+            objPrepare.setInt(5,objReservacion.getId_reservacion());
+
 
             int totalRowAffected = objPrepare.executeUpdate();
             if (totalRowAffected >0){
@@ -103,13 +108,13 @@ public class PasajeroModel implements CRUD {
 
     @Override
     public Boolean delete(Object obj) {
-        Pasajero objPasajero = (Pasajero) obj;
+        Reservación objReservacion = (Reservación) obj;
         Connection objConnection = ConfigDB.openConnection();
         boolean isDelete = false;
         try {
-            String sql = "DELETE FROM pasajero WHERE id_pasajero =?;";
+            String sql = "DELETE FROM reservacion WHERE id_reservacion =?;";
             PreparedStatement objPrepare = objConnection.prepareStatement(sql);
-            objPrepare.setInt(1,objPasajero.getId_pasajero());
+            objPrepare.setInt(1,objReservacion.getId_reservacion());
 
             int totalAffected = objPrepare.executeUpdate();
             if (totalAffected>0){
@@ -126,23 +131,25 @@ public class PasajeroModel implements CRUD {
         return isDelete;
     }
 
-    public Pasajero findById(int id){
+    public Reservación findById(int id){
         Connection objConnection = ConfigDB.openConnection();
 
-        Pasajero objPasajero = null;
+        Reservación objReservacion = null;
         try {
-            String sql  = "SELECT * FROM pasajero WHERE id_pasajero =?;";
+            String sql  = "SELECT * FROM reservacion WHERE id_reservacion =?;";
             PreparedStatement objPrepare = objConnection.prepareStatement(sql);
             objPrepare.setInt(1,id);
             ResultSet objResult = objPrepare.executeQuery();
 
             while (objResult.next()){
-                objPasajero = new Pasajero();
-                objPasajero.setId_pasajero(objResult.getInt("id_pasajero"));
-                objPasajero.setNombre(objResult.getString("nombre"));
-                objPasajero.setApellido(objResult.getString("apellido"));
-                objPasajero.setDocumento_identidad(objResult.getString("documento_identidad"));
-               }
+                objReservacion = new Reservación();
+                objReservacion.setId_reservacion(objResult.getInt("id_reservacion"));
+                objReservacion.setId_pasajero(objResult.getInt("id_pasajero_fk"));
+                objReservacion.setId_vuelo(objResult.getInt("id_vuelo_fk"));
+                objReservacion.setAsiento(objResult.getString("asiento"));
+                objReservacion.setFecha_reservacion(objResult.getString("fecha_reservacion"));
+
+            }
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -150,6 +157,6 @@ public class PasajeroModel implements CRUD {
             System.out.println(e.getMessage());
         }
         ConfigDB.closeConnection();
-        return objPasajero;
+        return objReservacion;
     }
 }
