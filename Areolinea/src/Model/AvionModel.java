@@ -159,7 +159,6 @@ public class AvionModel implements CRUD {
              if (objResult.next()){
                 int capacidad = objResult.getInt("avion.capacidad");
                 for (int i=1;i<capacidad+1;i++){
-                    ReservacionDTO objDTO = new ReservacionDTO();
                     listSeats.add("p"+i);
                 }
             }
