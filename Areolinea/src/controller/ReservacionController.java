@@ -4,6 +4,7 @@ import Model.ReservacionModel;
 import entity.Reservación;
 
 import javax.swing.*;
+import java.util.List;
 
 public class ReservacionController {
     public static void create(){
@@ -11,18 +12,25 @@ public class ReservacionController {
 
         int id_pasajero = Integer.parseInt(JOptionPane.showInputDialog(PasajeroController.getAll()+"\nPor favor ingrese el id del pasajero: "));
         int id_vuelo = Integer.parseInt(JOptionPane.showInputDialog(VueloController.getAll()+"\nPor favor ingrese el id del vuelo: "));
-        String fecha_reservacion = JOptionPane.showInputDialog("Por favor ingrese la fecha de reservacion (YYYY-MM-DD): ");
-        String asiento = JOptionPane.showInputDialog("Por favor ingrese el asiento: ");
+        List<String> listSeatsFree = objModel.generateSeatsFree(id_vuelo);
+        if (listSeatsFree==null){
+            JOptionPane.showMessageDialog(null,"Este vuelo ya no se encuentra disponible :(");
+        }else{
+            String fecha_reservacion = JOptionPane.showInputDialog("Por favor ingrese la fecha de reservacion (YYYY-MM-DD): ");
+            String asiento = JOptionPane.showInputDialog(listSeatsFree+"\nPor favor ingrese el asiento a reservar. Ejemplo: (p1): ");
+            if (objModel.verificateSeats(asiento,listSeatsFree)){
+                Reservación objReservacion = new Reservación();
+                objReservacion.setId_pasajero(id_pasajero);
+                objReservacion.setId_vuelo(id_vuelo);
+                objReservacion.setFecha_reservacion(fecha_reservacion);
+                objReservacion.setAsiento(asiento);
 
-        Reservación objReservacion = new Reservación();
-        objReservacion.setId_pasajero(id_pasajero);
-        objReservacion.setId_vuelo(id_vuelo);
-        objReservacion.setFecha_reservacion(fecha_reservacion);
-        objReservacion.setAsiento(asiento);
-
-        objReservacion = (Reservación) objModel.insert(objReservacion);
-        JOptionPane.showMessageDialog(null,objReservacion.toString());
-
+                objReservacion = (Reservación) objModel.insert(objReservacion);
+                JOptionPane.showMessageDialog(null,objReservacion.toString());
+            }else{
+                JOptionPane.showMessageDialog(null,"Asiento invalido :(");
+            }
+        }
     }
 
     public static String getAll(){
@@ -70,4 +78,15 @@ public class ReservacionController {
             objModel.update(objReservacion);
         }
     }
+    public static String getAllByVuelo(){
+        ReservacionModel objModel = new ReservacionModel();
+        int id = Integer.parseInt(JOptionPane.showInputDialog(VueloController.getAll()+"\nPor favor ingrese el id del vuelo: "));
+        String listReservaciones = "Lista de todas las reservaciones del vuelo ("+id+"): \n";
+        for (Object i : objModel.findAllByVuelo(id)){
+            Reservación objReservacion = (Reservación) i;
+            listReservaciones += objReservacion.toString()+"\n";
+        }
+        return listReservaciones;
+    }
+
 }

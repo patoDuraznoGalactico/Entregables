@@ -2,6 +2,7 @@ import controller.AvionController;
 import controller.PasajeroController;
 import controller.ReservacionController;
 import controller.VueloController;
+import entity.Pasajero;
 
 import javax.swing.*;
 
@@ -73,7 +74,7 @@ public class Main {
                             String opti1;
                             opti1 = JOptionPane.showInputDialog("""
                         1. Listar todos.
-                        2. Listar por especialidad.
+                        2. Buscar pasajeros por nombre.
                         
                         0. Salir.
                         """);
@@ -82,7 +83,7 @@ public class Main {
                                     JOptionPane.showMessageDialog(null,PasajeroController.getAll());
                                     break;
                                 case "2":
-
+                                    JOptionPane.showMessageDialog(null, PasajeroController.getByName());
                                     break;
                                 case "0":
                                     break;
@@ -121,8 +122,8 @@ public class Main {
                             String opti2;
                             opti2 = JOptionPane.showInputDialog("""
                         1. Listar todos.
-                        2. buscar por numero de documento.
-                        
+                        2. buscar vuelos por destino.
+                      2                        
                         0. Salir.
                         """);
                             switch (opti2) {
@@ -130,12 +131,13 @@ public class Main {
                                     JOptionPane.showMessageDialog(null,VueloController.getAll());
                                     break;
                                 case "2":
-
+                                    JOptionPane.showMessageDialog(null,VueloController.getVuelosByDestiny());
                                     break;
                                 case "0":
                                     break;
                             }
                             break;
+
 
                         case "3":
                             VueloController.update();
@@ -168,7 +170,7 @@ public class Main {
                             String opti3;
                             opti3 = JOptionPane.showInputDialog("""
                         1. Listar todas.
-                        2. buscar cita por fecha.
+                        2. buscar reservaciones de un vuelo.
                         
                         0. Salir.
                         """);
@@ -177,7 +179,7 @@ public class Main {
                                     JOptionPane.showMessageDialog(null,ReservacionController.getAll());
                                     break;
                                 case "2":
-
+                                    JOptionPane.showMessageDialog(null,ReservacionController.getAllByVuelo());
                                     break;
                                 case "0":
                                     break;

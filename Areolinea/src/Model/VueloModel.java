@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VueloModel implements CRUD {
+public class    VueloModel implements CRUD {
 
     public Object insert(Object obj) {
         Connection objConnection =  ConfigDB.openConnection();
@@ -155,5 +155,34 @@ public class VueloModel implements CRUD {
         }
         ConfigDB.closeConnection();
         return objVuelo;
+    }
+
+    public List<Object> findVuelosByDestiny(String destino) {
+        Connection objConnection  = ConfigDB.openConnection();
+        List<Object> listVuelosByDestiny = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM vuelo WHERE destino LIKE ?;";
+            PreparedStatement objPrepare = objConnection.prepareStatement(sql);
+            objPrepare.setString(1,"%"+destino+"%");
+            ResultSet objResult = objPrepare.executeQuery();
+
+            while (objResult.next()){
+                Vuelo objVuelo = new Vuelo();
+
+                objVuelo.setId_vuelo(objResult.getInt("id_vuelo"));
+                objVuelo.setDestino(objResult.getString("destino"));
+                objVuelo.setFecha_salida(objResult.getString("fecha_salida"));
+                objVuelo.setHora_salida(objResult.getString("hora_salida"));
+                objVuelo.setId_avion(objResult.getInt("id_avion_fk"));
+
+                listVuelosByDestiny.add(objVuelo);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        ConfigDB.closeConnection();
+        return listVuelosByDestiny;
     }
 }

@@ -3,6 +3,7 @@ package Model;
 import Database.CRUD;
 import Database.ConfigDB;
 import entity.Pasajero;
+import entity.Reservación;
 
 import javax.swing.*;
 import java.sql.*;
@@ -151,5 +152,32 @@ public class PasajeroModel implements CRUD {
         }
         ConfigDB.closeConnection();
         return objPasajero;
+    }
+    public List<Object> findByName(String nombre) {
+        Connection objConnection  = ConfigDB.openConnection();
+        List<Object> listPasajeros = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM pasajero WHERE nombre LIKE ?;";
+            PreparedStatement objPrepare = objConnection.prepareStatement(sql);
+            objPrepare.setString(1,"%"+nombre+"%");
+            ResultSet objResult = objPrepare.executeQuery();
+
+            while (objResult.next()){
+                Pasajero objPasajero = new Pasajero();
+
+                objPasajero.setId_pasajero(objResult.getInt("id_pasajero"));
+                objPasajero.setNombre(objResult.getString("nombre"));
+                objPasajero.setApellido(objResult.getString("apellido"));
+                objPasajero.setDocumento_identidad(objResult.getString("documento_identidad"));
+
+                listPasajeros.add(objPasajero);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        ConfigDB.closeConnection();
+        return listPasajeros;
     }
 }

@@ -1,5 +1,6 @@
 package Model;
 
+import DTO.ReservacionDTO;
 import Database.CRUD;
 import Database.ConfigDB;
 import entity.Avion;
@@ -146,4 +147,30 @@ public class AvionModel implements CRUD {
         ConfigDB.closeConnection();
         return objAvion;
     }
+    public List<String> generateSeats(int id){
+        Connection objConnection  = ConfigDB.openConnection();
+        List<String> listSeats = new ArrayList<>();
+        try {
+            String sql  = "SELECT avion.capacidad FROM avion JOIN vuelo ON avion.id_avion = vuelo.id_avion_fk  WHERE vuelo.id_vuelo  = ?;";
+            PreparedStatement objPrepare = objConnection.prepareStatement(sql);
+            objPrepare.setInt(1,id);
+            ResultSet objResult = objPrepare.executeQuery();
+
+             if (objResult.next()){
+                int capacidad = objResult.getInt("avion.capacidad");
+                for (int i=1;i<capacidad+1;i++){
+                    ReservacionDTO objDTO = new ReservacionDTO();
+                    listSeats.add("p"+i);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        ConfigDB.closeConnection();
+        return listSeats;
+    }
+
 }

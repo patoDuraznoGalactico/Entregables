@@ -71,4 +71,15 @@ public class VueloController {
             objModel.update(objVuelo);
         }
     }
+
+    public static String getVuelosByDestiny(){
+        VueloModel objModel = new VueloModel();
+        String destino = JOptionPane.showInputDialog("Por favor ingrese el destino a buscar: ");
+        String listVuelos = "Lista de los Vuelos del destino "+destino+": \n";
+        for (Object i : objModel.findVuelosByDestiny(destino)){
+            Vuelo objVuelo = (Vuelo) i;
+            listVuelos += objVuelo.toString()+"\n";
+        }
+        return listVuelos;
+    }
 }

@@ -1,7 +1,9 @@
 package controller;
 
 import Model.PasajeroModel;
+import Model.ReservacionModel;
 import entity.Pasajero;
+import entity.Reservación;
 
 import javax.swing.*;
 
@@ -65,5 +67,16 @@ public class PasajeroController {
 
             objModel.update(objPasajero);
         }
+    }
+
+    public static String getByName(){
+        PasajeroModel objModel = new PasajeroModel();
+        String nombre = JOptionPane.showInputDialog("Por favor ingrese el nombre a buscar: ");
+        String listPasajeros = "Lista de todos los pasajeros con el nombre ("+nombre+"): \n";
+        for (Object i : objModel.findByName(nombre)){
+            Pasajero objPasajero = (Pasajero) i;
+            listPasajeros += objPasajero.toString()+"\n";
+        }
+        return listPasajeros;
     }
 }

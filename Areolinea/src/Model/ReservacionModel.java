@@ -1,7 +1,9 @@
 package Model;
 
+import DTO.ReservacionDTO;
 import Database.CRUD;
 import Database.ConfigDB;
+import controller.AvionController;
 import entity.Reservación;
 
 import javax.swing.*;
@@ -148,7 +150,6 @@ public class ReservacionModel implements CRUD {
                 objReservacion.setId_vuelo(objResult.getInt("id_vuelo_fk"));
                 objReservacion.setAsiento(objResult.getString("asiento"));
                 objReservacion.setFecha_reservacion(objResult.getString("fecha_reservacion"));
-
             }
 
         } catch (SQLException e) {
@@ -159,4 +160,80 @@ public class ReservacionModel implements CRUD {
         ConfigDB.closeConnection();
         return objReservacion;
     }
+
+    public List<Object> findAllByVuelo(int id) {
+        Connection objConnection  = ConfigDB.openConnection();
+        List<Object> listReservaciones = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM reservacion WHERE id_vuelo_fk =?;";
+            PreparedStatement objPrepare = objConnection.prepareStatement(sql);
+            objPrepare.setInt(1,id);
+            ResultSet objResult = objPrepare.executeQuery();
+
+            while (objResult.next()){
+                Reservación objReservacion = new Reservación();
+
+                objReservacion.setId_reservacion(objResult.getInt("id_reservacion"));
+                objReservacion.setId_pasajero(objResult.getInt("id_pasajero_fk"));
+                objReservacion.setId_vuelo(objResult.getInt("id_vuelo_fk"));
+                objReservacion.setFecha_reservacion(objResult.getString("fecha_reservacion"));
+                objReservacion.setAsiento(objResult.getString("asiento"));
+
+                listReservaciones.add(objReservacion);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        ConfigDB.closeConnection();
+        return listReservaciones;
+    }
+    public List<String> generateSeatsFree(int id_vuelo){
+        Connection objConnection  = ConfigDB.openConnection();
+        List<String> listSeats = new ArrayList<>();
+        AvionModel objModelAvion = new AvionModel();
+        List<String> listSeatsFree = objModelAvion.generateSeats(id_vuelo);
+        try {
+
+            for(Object i: this.findAll()){
+                Reservación objReservacion = (Reservación) i;
+                if (objReservacion.getId_vuelo()==id_vuelo){
+                    listSeats.add(objReservacion.getAsiento());
+                }
+            }
+            System.out.println(listSeats);
+            System.out.println(listSeatsFree);
+
+            listSeatsFree.removeAll(listSeats);
+
+            System.out.println(listSeatsFree);
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        ConfigDB.closeConnection();
+        if (listSeatsFree.isEmpty()){
+            return null;
+        }
+        return listSeatsFree;
+    }
+    public boolean verificateSeats(String asiento, List<String> list){
+        Connection objConnection  = ConfigDB.openConnection();
+        try {
+            for (String i :list){
+                if (i.equals(asiento)){
+                    return true;
+                }
+            }
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        ConfigDB.closeConnection();
+        return false;
+
+    }
+
+
 }
